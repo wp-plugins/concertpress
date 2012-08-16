@@ -1,5 +1,5 @@
 
-=== Easy PayPal Custom Fields ===
+=== ConcertPress ===
 
 Contributors: theorboman
 Tags: music, classical music, events, events diary, concerts, concert, management

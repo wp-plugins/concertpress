@@ -202,7 +202,9 @@ class RPS_ConcertPress {
   */
 	public function addJS() {
 		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'jqui', CP_URL . 'js/jquery-ui.js' );
+		wp_enqueue_script( 'jquery-ui-core' );
+		wp_enqueue_script( 'jquery-ui-datepicker' );
+		wp_enqueue_script( 'jquery-ui-dialog' );
 		wp_enqueue_script('concertpress_js', CP_URL . 'js/cp-js.min.js', array( 'jquery' ), 1.0 );
 		$data = array(
 			'plugin_url' => CP_URL,
