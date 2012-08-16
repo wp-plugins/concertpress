@@ -3,7 +3,7 @@
 Plugin Name: ConcertPress
 Plugin URI: http://richardsweeney.com/portfolio-item/concertpress/
 Description: A concert diary plugin for classical musicians
-Version: 1.0.1
+Version: 1.1
 Author: Richard Sweeney
 Author URI: http://richardsweeney.com/
 */
@@ -65,6 +65,9 @@ class RPS_ConcertPress {
 		/* Add shortcode to echo the events to the front-end */
 		add_shortcode( 'cpevents', array( &$this, 'printEvents' ) );
 		add_action( 'wp_before_admin_bar_render', array( &$this, 'add_link_to_menu_bar' ) );
+
+		/* Add widget */
+		add_action( 'widgets_init', array($this, 'register_widget') );
 
 	}
 
@@ -944,16 +947,13 @@ class RPS_ConcertPress {
 		$sql = $this->events_sql( 'past' );
 		$events = $wpdb->get_results( $sql, ARRAY_A );
 
-		$topOfThePage = '<div class="wrap cp-inside" data-page="events">
-		<h2 id="section-header">Archives</h2><br>';
-
 		$noConcertMessage = '<p>There are no events in the archives yet.<br>Events that have ocurred will automatically move to the archives.</p>';
 
 		echo '<div id="delete-container" title="Delete Events"></div>';
 		echo '<div id="cp-table-container">';
 		// As we don't have a proper header and/or container in the list-events file
-		echo $topOfThePage;
-
+		echo '<div class="wrap cp-inside" data-page="events">';
+		echo '<h2 id="section-header">Archives</h2><br>';
 		include_once( 'html/list-events.php' ); // Method to draw the venues table & pagination
 		echo '</div>';
 
@@ -1460,6 +1460,7 @@ class RPS_ConcertPress {
  	* [5] - link_container string the container for the 'read more' link: 'p, span or div'
  	* [6] - show_maps string 'yes' or 'no' whether or not to show a google map (only for single events)
  	* [7] - no_event_message string the message to display if there are currently no events
+ 	* [8] - sidebar boolean whether or not we're echoing the widget html
  	*
  	* @return string the list of events
  	*/
@@ -1468,16 +1469,17 @@ class RPS_ConcertPress {
 		global $wpdb;
 
 		$defaults = array(
-			'scope' => 'future', // scope of events to show
-			'limit' => -1, // number of events to show
-			'order' => 'asc',
-			'show_excerpt' => 'yes', // show full prog description
-			'excerpt_length' => 10, // length of the excerpt
-			'link_to_event' => 'yes', // whether or not to show a link to the full event details
-			'link_text' => 'View full event details', // Text for the link
-			'link_container' => 'p', // HTML tag continer for the link
-			'show_maps' => 'yes', // Whether or not to show the map (only works for single events)
-			'no_event_message' => 'There are currently no upcoming events to display' // Message to display if there are no events
+			'scope'            => 'future', // scope of events to show
+			'limit'            => -1, // number of events to show
+			'order'            => 'asc',
+			'show_excerpt'     => 'yes', // show full prog description
+			'excerpt_length'   => 10, // length of the excerpt
+			'link_to_event'    => 'yes', // whether or not to show a link to the full event details
+			'link_text'        => 'View full event details', // Text for the link
+			'link_container'   => 'p', // HTML tag continer for the link
+			'show_maps'        => 'yes', // Whether or not to show the map (only works for single events)
+			'no_event_message' => 'There are currently no upcoming events to display', // Message to display if there are no events
+			'sidebar'          => false // If we're echoing the sidebar widget
 		);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -1492,7 +1494,7 @@ class RPS_ConcertPress {
 		$displayLimit = ( $args['limit'] == -1 ) ? 10000 : (int) $args['limit'];
 
 		// If no event id is set in the url, show all events
-		if( isset( $_GET['event_id'] ) ) {
+		if( isset( $_GET['event_id'] ) && !$args['sidebar'] ) {
 
 			$eventID = (int) $_GET['event_id'];
 			$singleEvent = true;
@@ -1589,9 +1591,9 @@ class RPS_ConcertPress {
 					}
 					// Time & Venue
 					$html .= '<span class="time dtstart">' . $niceEventDate  . '</span>';
-					$html .= '<span class="location">' . $venue . '</span>';
+					$html .= '<span class="location"><strong>Venue: </strong>' . $venue . '</span>';
 					$html .= $address;
-					$html .= '<span class="title summary">' . $prog . '</span>';
+					$html .= '<span class="title summary"><strong>Programme: </strong>' . $prog . '</span>';
 					$html .= '<div class="description">' . $excerpt . '</div>';
 
 					if( $args['link_to_event'] == 'yes' ) {
@@ -1610,9 +1612,9 @@ class RPS_ConcertPress {
 
 					$html .= '<div class="event-details-container">';
 					$html .= '<span class="time dtstart">' . $niceEventDate . '</span>';
-					$html .= '<span class="location">' . $venue . '</span>';
+					$html .= '<span class="location"><strong>Venue:</strong> ' . $venue . '</span>';
 					$html .= $address . $geo;
-					$html .= '<span class="title summary">' . $prog . '</span>';
+					$html .= '<span class="title summary"><strong>Programme:</strong> ' . $prog . '</span>';
 					$html .= '<div class="description">' . $details . '</div>';
 					$html .= '</div>'; // event-details-container
 
@@ -1643,8 +1645,90 @@ class RPS_ConcertPress {
 	  ));
 	}
 
+	function register_widget() {
+		register_widget('ConcertPressWidget');
+	}
+
 }
 
 // The End
 
 $rps_concertPress = new RPS_ConcertPress();
+
+
+class ConcertPressWidget extends WP_Widget {
+
+	public function __construct() {
+		parent::__construct(
+	 		'concertpress_id', // Base ID
+			'ConcertPress', // Name
+			array( 'description' => __( 'Display a list of upcoming events', 'text_domain' ), )
+		);
+	}
+
+
+	/**
+	 * Front-end display of widget.
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Saved values from database.
+	*/
+	public function widget( $args, $instance ) {
+		global $rps_concertPress;
+		$num_events = $instance['num_events'];
+		$args = array(
+			'limit' => $num_events,
+			'excerpt_length' => 10,
+			'link_to_event' => 'no',
+			'sidebar' => true
+		);
+		echo '<div class="concertpress-widget-container">' . "\n";
+		echo '<div class="title">Upcoming Events</div>' . "\n";
+		echo $rps_concertPress->printEvents( $args );
+		echo '</div>' . "\n";
+	}
+
+	/**
+	 * Sanitize widget form values as they are saved.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance Values just sent to be saved.
+	 * @param array $old_instance Previously saved values from database.
+	 *
+	 * @return array Updated safe values to be saved.
+	*/
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['num_events'] = (int) $new_instance['num_events'];
+		return $instance;
+	}
+
+	/**
+	 * Back-end widget form.
+	 *
+	 * @see WP_Widget::form()
+	 *
+	 * @param array $instance Previously saved values from database.
+	*/
+	public function form( $instance ) {
+		if(isset($instance['num_events']) && $instance['num_events'] != 0) {
+			$num_events = $instance['num_events'];
+		} else {
+			$num_events = 3;
+		}
+	?>
+		<p>
+			<label for="<?php echo $this->get_field_name( 'num_events' ); ?>"><?php _e( 'Number of events to display' ); ?></label>&nbsp;
+			<select name="<?php echo $this->get_field_name( 'num_events' ); ?>" id="<?php echo $this->get_field_id( 'num_events' ); ?>">
+				<?php for($i = 1; $i <= 5; $i++): ?>
+					<option <?php selected( $num_events, $i ); ?> val="<?php echo $i; ?>"><?php echo $i; ?></option>
+				<?php endfor; ?>
+			</select>
+		</p>
+	<?php
+	}
+
+}
