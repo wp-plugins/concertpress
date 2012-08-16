@@ -222,12 +222,6 @@ class RPS_ConcertPress {
 	}
 
 
-	/* include jQuery on the front end */
-	public function add_jQuery(){
-		wp_enqueue_script( 'jquery' );
-	}
-
-
 
  /**
   * Add CSS to admin header
