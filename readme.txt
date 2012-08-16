@@ -5,7 +5,7 @@ Contributors: theorboman
 Tags: music, classical music, events, events diary, concerts, concert, management
 Requires at least: 3.4.1
 Tested up to: 3.4.1
-Stable tag: 1.0
+Stable tag: 1.0.1
 
 An events management plugin specifically designed for classical musicians.
 

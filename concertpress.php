@@ -3,7 +3,7 @@
 Plugin Name: ConcertPress
 Plugin URI: http://richardsweeney.com/portfolio-item/concertpress/
 Description: A concert diary plugin for classical musicians
-Version: 1.0
+Version: 1.0.1
 Author: Richard Sweeney
 Author URI: http://richardsweeney.com/
 */
