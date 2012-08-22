@@ -214,9 +214,11 @@ ul#cp-errors-list {
 }
 
 .vevent img {
-	background: 0;
-	box-shadow: none;
-	border-radius: 0;
+	background: none !important;
+	-webkit-box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	box-shadow: none !important;
+	max-width: auto !important;
 }
 
 .add-event-section h3 {
@@ -230,7 +232,7 @@ ul#cp-errors-list {
 }
 
 .mceEditor td.mceIframeContainer iframe {
-  min-height: 200px !important;
+  min-height: 100px !important;
 }
 .mceEditor table {
   height: auto !important;
