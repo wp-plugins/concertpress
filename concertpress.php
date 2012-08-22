@@ -1593,7 +1593,7 @@ class RPS_ConcertPress {
 					$html .= '<span class="time dtstart">' . $niceEventDate  . '</span>';
 					$html .= '<span class="location"><strong>Venue: </strong>' . $venue . '</span>';
 					$html .= $address;
-					$html .= '<span class="title summary"><strong>Programme: </strong>' . $prog . '</span>';
+					$html .= '<span class="prog-title summary"><strong>Programme: </strong>' . $prog . '</span>';
 					$html .= '<div class="description">' . $excerpt . '</div>';
 
 					if( $args['link_to_event'] == 'yes' ) {
@@ -1614,7 +1614,7 @@ class RPS_ConcertPress {
 					$html .= '<span class="time dtstart">' . $niceEventDate . '</span>';
 					$html .= '<span class="location"><strong>Venue:</strong> ' . $venue . '</span>';
 					$html .= $address . $geo;
-					$html .= '<span class="title summary"><strong>Programme:</strong> ' . $prog . '</span>';
+					$html .= '<span class="prog-title summary"><strong>Programme:</strong> ' . $prog . '</span>';
 					$html .= '<div class="description">' . $details . '</div>';
 					$html .= '</div>'; // event-details-container
 
