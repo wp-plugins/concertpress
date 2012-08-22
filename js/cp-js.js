@@ -119,8 +119,10 @@ jQuery( function( $ ) {
 				dis.event.$hour.add( dis.event.$min ).attr( 'disabled', false ).val( 0 );
 			}
 			dis.event.$showVenue.add( dis.event.$showProg ).show();
+
 			if( adminpage === 'concertpress_page_events' || adminpage === 'concertpress_page_programmes' ) {
 				tinyMCE.init({
+					height: '300',
 					onitit: function(){
 						tinyMCE.activeEditor.setContent('');
 					}
@@ -1188,7 +1190,11 @@ jQuery( function( $ ) {
 			progDesc = $( 'td.content-full-' + this.editID ).html();
 
 		this.prog.$progTitle.val( progTitle );
-		tinyMCE.activeEditor.setContent( progDesc );
+		tinyMCE.init({
+			onitit: function(){
+				tinyMCE.activeEditor.setContent(progDesc);
+			}
+		});
 
 		this.$submit.val( 'Save changes' );
 		this.showAddEditDiv();
@@ -1202,8 +1208,6 @@ jQuery( function( $ ) {
 		event.preventDefault();
 
 	});
-
-
 
 
  /**
@@ -1430,7 +1434,15 @@ jQuery( function( $ ) {
 
 				// New programme details
 				data.prog.title = dis.prog.$progTitle.val();
-				data.prog.details = tinyMCE.activeEditor.getContent();
+
+				var details;
+				// If the editor is active
+				if (tinyMCE.activeEditor == null || tinyMCE.activeEditor.isHidden() != false) {
+				  details = $('#programme-details').val();
+				} else {
+					details = tinyMCE.activeEditor.getContent();
+				}
+				data.prog.details = details;
 
 			}
 
@@ -1495,7 +1507,11 @@ jQuery( function( $ ) {
 
 						// Empty any input field we've used
 						$( 'input.cp-clear' ).val( '' );
-						tinyMCE.activeEditor.setContent('');
+						if (tinyMCE.activeEditor == null || tinyMCE.activeEditor.isHidden() != false) {
+						  $('#programme-details').val('');
+						} else {
+							tinyMCE.activeEditor.setContent('');
+						}
 						// Uncheck the multidate checkbox
 						dis.event.$multiDate.attr( 'checked', false ).trigger( 'change' );
 
@@ -1683,13 +1699,20 @@ jQuery( function( $ ) {
 
 			dis.$ajaxLoader.show();
 
+			var details;
+			if (tinyMCE.activeEditor == null || tinyMCE.activeEditor.isHidden() != false) {
+			  details = $('#programme-details').val();
+			} else {
+				details = tinyMCE.activeEditor.getContent();
+			}
+
 			var data = {
 				action : 'new-programme-ajax',
 				editflag: dis.editFlag,
 				edit_id: +dis.editID,
 				prog: {
 					title: dis.prog.$progTitle.val(),
-					details: tinyMCE.activeEditor.getContent()
+					details: details
 				},
 				_ajax_nonce: phpvars.nonce
 			};
@@ -1729,7 +1752,12 @@ jQuery( function( $ ) {
 						dis.reloadAfterAjax(dis.pageNo);
 
 						dis.prog.$progTitle.val('');
-						tinyMCE.activeEditor.setContent('');
+
+						if (tinyMCE.activeEditor == null || tinyMCE.activeEditor.isHidden() != false) {
+			  			$('#programme-details').val('');
+						} else {
+							tinyMCE.activeEditor.setContent('');
+						}
 
 						dis.$submit.val( 'Add programme' );
 
