@@ -3,7 +3,7 @@
 Plugin Name: ConcertPress
 Plugin URI: http://richardsweeney.com/portfolio-item/concertpress/
 Description: A concert diary plugin for classical musicians
-Version: 1.1.1
+Version: 1.1.2
 Author: Richard Sweeney
 Author URI: http://richardsweeney.com/
 */
@@ -1545,6 +1545,8 @@ class RPS_ConcertPress {
 			$html = '<div class="concertpress-container">';
 
 			foreach( $events as $event ) {
+
+				$excerpt = '';
 
 				$slashEvent = $event;
 				$event = array_map( 'stripslashes_deep', $event );
